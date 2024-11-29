@@ -96,6 +96,16 @@ kubectl port-forward svc/kusk-gateway-envoy-fleet -n kusk-system 8080:80
 curl localhost:8080/hello
 ```
 
+Результат в консоли
+
+<img src="/images/cnosole.png" width="640"/>
+
+## Github Actions
+
+Делаем push в репозиторий. Результат выполнения `ci` `action`:
+
+<img src="/images/gh-action.png" width="640"/>
+
 ## Delete minikube
 
 ```bash
