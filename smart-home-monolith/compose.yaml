@@ -1,0 +1,27 @@
+services:
+  postgres-db:
+    container_name: postgres-db
+    image: postgres:13-alpine
+    restart: always
+    ports:
+      - 5432:5432
+    networks:
+      app-network:
+    environment:
+      POSTGRES_DB: "smart_home"
+      POSTGRES_USER: "your_username"
+      POSTGRES_PASSWORD: "your_password"
+
+  weather-data:
+    container_name: weather-data
+    build:
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres-db
+    networks:
+      app-network:
+    ports:
+      - 8080:8080
+
+networks:
+  app-network:

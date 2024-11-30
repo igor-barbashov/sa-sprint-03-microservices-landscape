@@ -32,17 +32,20 @@
 
 ## Запуск
 
-1.
-
-``` shell
-docker run --name postgres-db -e POSTGRES_DB=smart_home -e POSTGRES_USER=your_username -e POSTGRES_PASSWORD=your_password -p 5432:5432 -d postgres:13-alpine
+1. В Docker
+```bash
+docker compose up -d
 ```
 
-2.
-
-``` shell
-mvn spring-boot:run
-```
+2. Локально
+   - Запускаем PostgreSQL
+    ``` shell
+    docker run --name postgres-db -e POSTGRES_DB=smart_home -e POSTGRES_USER=your_username -e POSTGRES_PASSWORD=your_password -p 5432:5432 -d postgres:13-alpine
+    ```
+   - Запускаем приложение
+    ``` shell
+    mvn spring-boot:run
+    ```
 
 ## Тесты
 
@@ -59,9 +62,9 @@ mvn test
 ```yaml
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/smart_home
-    username: user
-    password: password
+    url: jdbc:postgresql://postgres-db:5432/smart_home
+    username: your_username
+    password: your_password
   jpa:
     hibernate:
       ddl-auto: update
