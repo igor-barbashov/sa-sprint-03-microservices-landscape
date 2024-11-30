@@ -36,6 +36,11 @@
 ```bash
 docker compose up -d
 ```
+Остановка
+```bash
+docker compose down -v
+```
+
 
 2. Локально
    - Запускаем PostgreSQL

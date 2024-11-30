@@ -5,6 +5,7 @@ import ru.yandex.practicum.smarthome.entity.HeatingSystem;
 
 public interface HeatingSystemService {
     HeatingSystemDto getHeatingSystem(Long id);
+    HeatingSystemDto createHeatingSystem(HeatingSystemDto heatingSystemDto);
     HeatingSystemDto updateHeatingSystem(Long id, HeatingSystemDto heatingSystemDto);
     void turnOn(Long id);
     void turnOff(Long id);

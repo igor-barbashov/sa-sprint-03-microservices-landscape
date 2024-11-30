@@ -19,6 +19,15 @@ public class HeatingSystemServiceImpl implements HeatingSystemService {
     }
 
     @Override
+    public HeatingSystemDto createHeatingSystem(HeatingSystemDto heatingSystemDto) {
+        HeatingSystem entity = new HeatingSystem();
+        entity.setTargetTemperature(heatingSystemDto.getTargetTemperature());
+        entity.setOn(false);
+        HeatingSystem savedHeatingSystem = heatingSystemRepository.save(entity);
+        return convertToDto(savedHeatingSystem);
+    }
+
+    @Override
     public HeatingSystemDto updateHeatingSystem(Long id, HeatingSystemDto heatingSystemDto) {
         HeatingSystem existingHeatingSystem = heatingSystemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("HeatingSystem not found"));
