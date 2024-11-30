@@ -6,6 +6,11 @@ import ru.yandex.practicum.smarthome.dto.HeatingSystemDto;
 import ru.yandex.practicum.smarthome.entity.HeatingSystem;
 import ru.yandex.practicum.smarthome.repository.HeatingSystemRepository;
 
+import java.util.Properties;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
+
 @Service
 @RequiredArgsConstructor
 public class HeatingSystemServiceImpl implements HeatingSystemService {
@@ -24,6 +29,19 @@ public class HeatingSystemServiceImpl implements HeatingSystemService {
         entity.setTargetTemperature(heatingSystemDto.getTargetTemperature());
         entity.setOn(false);
         HeatingSystem savedHeatingSystem = heatingSystemRepository.save(entity);
+
+        // send post into Kafka topic
+        Properties props = new Properties();
+        props.put("bootstrap.servers", "host.docker.internal:9091,host.docker.internal:9092,host.docker.internal:9093");
+        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+
+        Producer<String, String> producer = new KafkaProducer<>(props);
+        ProducerRecord<String, String> record = new ProducerRecord<>("weather-app", "sensor1", "temperature=25,humidity=60");
+        producer.send(record);
+        producer.close();
+        // send post into Kafka topic
+
         return convertToDto(savedHeatingSystem);
     }
 

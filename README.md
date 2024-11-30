@@ -1,3 +1,91 @@
+## Настройка Kafka
+
+1. Скачайте последнюю версию Apache Kafka с официального сайта: [Kafka Downloads](https://kafka.apache.org/downloads)
+
+2. Распакуйте архив в удобное место на вашем сервере или локальной машине
+
+3. Команды выполняем в директории с дистрибутивом Kafka
+   - Запустите ZooKeeper с использованием предоставленного скрипта
+    ```bash
+    bin/zookeeper-server-start.sh config/zookeeper.properties
+    ```
+
+   - После запуска ZooKeeper запустите Kafka-брокер
+    ```bash
+    bin/kafka-server-start.sh config/server.properties
+    ```
+
+   - Создаем топик `weather-data`
+    ```bash
+    bin/kafka-topics.sh --create --topic weather-data --bootstrap-server localhost:9092 --partitions 5 --replication-factor 3
+    ```
+
+   - Проверяем, что топик был успешно создан
+    ```bash
+    bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+    ```
+
+   - Подробная информация о топике
+    ```bash
+    bin/kafka-topics.sh --describe --topic weather-data --bootstrap-server localhost:9092
+    ```
+   
+   - Удаление топика
+   ```bash
+   bin/kafka-topics.sh --delete --topic weather-data --bootstrap-server localhost:9092
+   ```
+
+   - Топики в Kafka могут быть настроены с различными параметрами для оптимизации производительности и надёжности
+    ```bash
+    bin/kafka-configs.sh --alter --topic weather-data --add-config retention.ms=604800000 --bootstrap-server localhost:9092
+    ```
+
+    ```bash
+    bin/kafka-configs.sh --alter --topic weather-data --add-config cleanup.policy=delete --bootstrap-server localhost:9092
+    ```
+
+    ```bash
+    bin/kafka-configs.sh --alter --topic weather-data --add-config min.insync.replicas=2 --bootstrap-server localhost:9092
+    ```
+
+   - Вы можете добавить разделы к существующему топику с помощью команды
+    ```bash
+    bin/kafka-topics.sh --alter --topic weather-data --partitions 5 --bootstrap-server localhost:9092
+    ```
+
+4. Запуск UI for Apache Kafka
+```bash
+docker run -it -p 8081:8080 -e DYNAMIC_CONFIG_ENABLED=true provectuslabs/kafka-ui
+```
+
+5. Запуск нескольких брокеров Kafka
+   - Для каждого брокера создаем свой файл настроек `server-1.properties`
+      ```
+      broker.id=1
+      listeners=PLAINTEXT://0.0.0.0:9091
+      advertised.listeners=PLAINTEXT://host.docker.internal:9091
+      log.dirs=/tmp/kafka-logs-1
+      zookeeper.connect=localhost:2181
+      ```
+      ```
+      broker.id=2
+      listeners=PLAINTEXT://0.0.0.0:9092
+      advertised.listeners=PLAINTEXT://host.docker.internal:9092
+      log.dirs=/tmp/kafka-logs-2
+      zookeeper.connect=localhost:2181
+      ```
+   - Запускаем брокеры
+      ```bash
+      bin/kafka-server-start.sh config/server-1.properties
+      ```
+      ```bash
+      bin/kafka-server-start.sh config/server-2.properties
+      ```
+   - Подготовка продьюсеров
+      ```java
+      props.put("bootstrap.servers", "host.docker.internal:9091,host.docker.internal:9092,host.docker.internal:9093");
+      ```
+
 # Базовая настройка
 
 ## Запуск minikube
