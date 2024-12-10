@@ -1,0 +1,28 @@
+@startuml
+title Диаграмма контекста монолитного приложения "Тёплый дом"
+
+!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+left to right direction
+
+Person(user, "Пользователь", "Пользователь системы Тёплый дом")
+Person(specialist, "Специалист", "Специалист по подключению системы отопления")
+
+Boundary(system, "Система Тёплый дом"){
+    Container(heat_control_system, "Система управления отоплением", "Вкл/выкл, установка целевой температуры")
+    Container(monitoring_system, "Система мониторинга температуры", "Обработка данных о текущей температуре с датчиков")
+}
+
+System_Ext(app, "Веб-приложение", "Управление системой отопления и мониторинг температуры")
+System_Ext(heat_system, "Система отопления", "Модуль системы отопления, установленный в доме")
+System_Ext(sensor, "Датчики", "Датчики температуры, установленные в доме")
+
+Rel(user, app, "Включает/выключает отопление, устанавливает температуру, получает информацию о системе/температуре", "https")
+Rel(specialist, app, "Подключает новые модули", "https")
+
+Rel(app, heat_control_system, "Отправляет команды, делает запросы о состоянии системы", "https")
+Rel(app, monitoring_system, "Делает запросы о текущей температуре", "https")
+
+Rel(heat_control_system, heat_system, "Отправляет команды системе отопления, получает информацию о состоянии системы", "https")
+Rel(monitoring_system, sensor, "Запрос данных с датчиков", "https")
+@enduml
