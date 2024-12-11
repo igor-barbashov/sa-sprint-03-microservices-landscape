@@ -1,0 +1,60 @@
+@startuml
+title Диаграмма классов сервиса Управления теплом
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+class HeatingSystemController {
+  +HeatingSystemService heatingSystemService
+  +Logger logger
+  +ResponseEntity<HeatingSystemDto> getHeatingSystem()
+  +ResponseEntity<HeatingSystemDto> updateHeatingSystem()
+  +ResponseEntity<Void> turnOn()
+  +ResponseEntity<Void> turnOff()
+  +ResponseEntity<Void> setTargetTemperature()
+  +ResponseEntity<Double> getCurrentTemperature()
+}
+
+class HeatingSystemDto {
+  +Long id
+  +boolean isOn
+  +double targetTemperature
+  +double currentTemperature
+}
+
+class HeatingSystem {
+  +Long id
+  +boolean isOn
+  +double targetTemperature
+  +double currentTemperature
+}
+
+interface HeatingSystemService {
+  +HeatingSystemDto getHeatingSystem()
+  +HeatingSystemDto updateHeatingSystem()
+  +turnOn()
+  +void turnOff()
+  +void setTargetTemperature()
+  +Double getCurrentTemperature()
+}
+
+class HeatingSystemServiceImpl {
+  +HeatingSystemRepository heatingSystemRepository
+  +HeatingSystemDto getHeatingSystem()
+  +HeatingSystemDto updateHeatingSystem()
+  +void turnOn()
+  +void turnOff()
+  +void setTargetTemperature()
+  +Double getCurrentTemperature()
+  +HeatingSystemDto convertToDto()
+}
+
+class HeatingSystemRepository {}
+
+HeatingSystemController o-- HeatingSystemServiceImpl
+HeatingSystemController o-- Logger
+HeatingSystemService <|.. HeatingSystemServiceImpl
+HeatingSystemServiceImpl o-- HeatingSystemRepository
+HeatingSystemController <.. HeatingSystemDto
+HeatingSystemServiceImpl <.. HeatingSystemDto
+HeatingSystemServiceImpl <.. HeatingSystem
+@enduml

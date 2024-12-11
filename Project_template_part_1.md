@@ -85,7 +85,13 @@
 
 **Диаграмма кода (Code)**
 
-Добавьте одну диаграмму или несколько.
+1. Диаграмма перехода для отправки уведомления о событии произошедшем по сценарию | [Исходник в формате puml](smart-home-monolith/diagrams/2-3-microservices-code-sequence.puml)
+
+![Диаграмма перехода для отправки уведомления о событии произошедшем по сценарию](smart-home-monolith/diagrams/2-3-microservices-code-sequence.png)
+
+2. Диаграмма классов сервиса Управления теплом | [Исходник в формате puml](smart-home-monolith/diagrams/2-3-microservices-code-class.puml)
+
+![Диаграмма классов сервиса Управления теплом](smart-home-monolith/diagrams/2-3-microservices-code-class.png)
 
 # Задание 3. Разработка ER-диаграммы
 

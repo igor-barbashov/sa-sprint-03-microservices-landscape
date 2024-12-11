@@ -1,0 +1,20 @@
+@startuml
+title Диаграмма перехода для отправки уведомления о событии произошедшем по сценарию
+
+participant ScenarioService
+queue Kafka
+
+ScenarioService --> Kafka: отправляет (push) \nEvent по сценарию
+
+DeviceController --> Kafka: считывает (pull) \nсообщение из топика
+
+DeviceController --> Device: отдает команду (sync) \nна изменение настроек устройства
+
+Device --> DeviceController: сообщает (sync) \nо применении изменений
+
+DeviceController --> Kafka: отправляет (push) сообщение \nо выполненном Event сценария
+
+NotificationService --> Kafka: считывает (pull) \nсообщение из топика
+
+NotificationService --> ExternalSystem: отправляет уведомление \nдля доставки пользователю
+@enduml
