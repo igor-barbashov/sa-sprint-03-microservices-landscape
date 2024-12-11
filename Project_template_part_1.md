@@ -69,13 +69,19 @@
 
 Т.к. у нас раньше не была отображена диаграмма Контекста `to-be` системы, на диаграмме контейнеров так же отобразил внешние системы.
 
-([Исходник в формате puml](smart-home-monolith/diagrams/2-1-microservices-containers.puml))
+[Исходник в формате puml](smart-home-monolith/diagrams/2-1-microservices-containers.puml)
 
-![Диаграмма контекста монолитного приложения "Тёплый дом"](smart-home-monolith/diagrams/2-1-microservices-containers.png)
+![Диаграмма контейнеров системы "Тёплый дом"](smart-home-monolith/diagrams/2-1-microservices-containers.png)
 
 **Диаграмма компонентов (Components)**
 
-Добавьте диаграмму для каждого из выделенных микросервисов.
+1. Диаграмма компонентов микросервиса "Управление устройствами" | [Исходник в формате puml](smart-home-monolith/diagrams/2-2-microservices-components-devices.puml)
+
+![Диаграмма компонентов микросервиса "Управление устройствами"](smart-home-monolith/diagrams/2-2-microservices-components-devices.png)
+
+2. Диаграмма компонентов микросервиса "Система мониторинга" | [Исходник в формате puml](smart-home-monolith/diagrams/2-2-microservices-components-monitoring.puml)
+
+![Диаграмма компонентов микросервиса "Система мониторинга"](smart-home-monolith/diagrams/2-2-microservices-components-monitoring.png)
 
 **Диаграмма кода (Code)**
 
