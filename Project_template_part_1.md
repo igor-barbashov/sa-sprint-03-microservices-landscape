@@ -59,7 +59,10 @@
 
 ### 5. Визуализация контекста системы - диаграмма С4
 
-[Диаграмма контекста монолитного приложения "Тёплый дом"](smart-home-monolith/diagrams/1-5-monolith-context.puml)
+[Исходник в формате puml](smart-home-monolith/diagrams/1-5-monolith-context.puml)
+
+![Диаграмма контекста монолитного приложения "Тёплый дом"](smart-home-monolith/diagrams/1-5-monolith-context.png)
+
 
 # Задание 2. Проектирование микросервисной архитектуры
 
