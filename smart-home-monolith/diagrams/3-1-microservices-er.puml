@@ -1,0 +1,75 @@
+@startuml
+title ER-диаграмма
+
+entity User {
+  * id : Long [PK]
+  --
+  * email : String
+  * password : String
+  * name : String
+  * birth_date : Date
+  * house_ids : List<Long>
+}
+
+entity House {
+  * id : Long [PK]
+  --
+  * user_ids : List<Long>
+  * address : String
+}
+
+entity DeviceType {
+  * id : Long [PK]
+  --
+  * type : Type
+  * description : String
+}
+
+entity Device {
+  * id : Long [PK]
+  --
+  * type_id : Long
+  * house_id : Long
+  * serial_number : String
+  * status : Status
+}
+
+entity TelemetryData {
+  * id : Long [PK]
+  --
+  * device_id : Long
+  * data : Json
+  * generation_date : Date
+}
+
+entity Module {
+  * id : Long [PK]
+  --
+  * device_id : Long
+  * config : Json
+}
+
+'User - House
+'пользователь может управлять несколькими домами, а может не управлять ни одним;
+'в то же время дом может быть под управлением нескольких пользователей, а может не быть под управлением вообще
+User }o--o{ House : управляет
+
+'Device - DeviceType
+'устройство может быть строго одного типа;
+'один тип может быть назначен нескольким устройствам (или устройств с таким типом может не быть)
+Device }o--|| DeviceType : соответствует
+
+'Device - House
+'устройство может принадлежать только одному дому; в доме может быть несколько устройств (или не быть вообще)
+Device }o--|| House : принадлежит
+
+'Device - TelemetryData
+'одно устройство может генерировать множество записей телеметрии;
+'но одна конкретная телеметрия сгенерирована одним конкретным устройством
+Device ||--o{ TelemetryData : генерирует
+
+'Device - Module
+'модуль может быть составной частью только одного устройства;
+'в то же время в устройстве должен быть как минимум один модуль
+Device ||--|{ Module : является \n частью
+@enduml
