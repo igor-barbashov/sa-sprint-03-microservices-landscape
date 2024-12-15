@@ -1,0 +1,75 @@
+@startuml
+title Диаграмма контейнеров системы "Тёплый дом"
+
+!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+top to bottom direction
+
+Boundary(system, "Система Тёплый дом", "микросервисная архитектура"){
+    Container(gateway, "API Gateway", "Маршрутизация запросов")
+
+    Container(auth_ms, "AuthService", "Аутентификация и авторизация, роли, jwt")
+    Container(user_ms, "UserService", "Управление пользователями, списками поселков / домов")
+
+    Boundary(device, "Управление устройствами"){
+        Container(device_ms, "DeviceService", "Управление устройствами (модулями) системы")
+        Container(scenario_ms, "ScenarioService", "Управление сценариями использования устройств")
+    }
+
+    Boundary(controller, "Контролеры устройств", "C"){
+        Container(device_controller, "DeviceController", "Взаимодействие с устройствами")
+        Container(sensor_controller, "SensorController", "Взаимодействие с датчиками")
+    }
+
+    Boundary(monitoring, "Система мониторинга"){
+        Container(monitoring_ms, "MonitoringService", "Обработка данных с датчиков, предоставление агрегированных данных пользователю, работа с историческими данными")
+        Container(monitoring_ws, "MonitoringWSService", "Обмен данными в режиме реального времени", "websocket")
+    }
+
+    Container(billing_ms, "BillingService", "Управление выставлением счетов, оплаты услуг")
+
+    Container(partner_ms, "PartnerService", "Интеграция с внешними системами поставщиков оборудования")
+
+    Container(support_ms, "SupportService", "Управление обращениями в поддержку")
+
+    Container(notification_ms, "NotificationService", "Интеграция с внешними системами уведомлений")
+
+    Container(kafka, "Брокер сообщений", "Обеспечивает асинхронное межсервисное взаимодействие", "Kafka")
+}
+
+System_Ext(app, "Веб-приложение", "Управление системой, мониторинг, подключение новых устройств, биллинг, заявки в поддержку")
+System_Ext(module, "Устройства", "Отвечает за конкретную функцию системы умного дома")
+System_Ext(sensor, "Датчики")
+System_Ext(notification, "Система отправки уведомлений", "sms, email, push")
+System_Ext(partner, "Поставщики оборудования", "Предоставляют информацию об ассортименте, наличии и ценах устройств, поддерживающих протоколы экосистемы")
+System_Ext(pay, "Платежные системы", "Интеграция с внешними системами обработки платежей")
+
+Rel(gateway, auth_ms, "")
+Rel(gateway, user_ms, "")
+Rel(gateway, device_ms, "")
+Rel(gateway, scenario_ms, "")
+Rel(gateway, monitoring_ms, "")
+Rel(gateway, billing_ms, "")
+Rel(gateway, partner_ms, "")
+Rel(gateway, support_ms, "")
+
+Rel(device_ms, device_controller, "Отправляет команды")
+Rel(device_controller, module, "Отправляет команды / опрашивает состояние")
+Rel(monitoring_ws, sensor_controller, "Получает данные датчиков в реальном времени")
+Rel(sensor_controller, sensor, "Опрашивает состояние")
+Rel(kafka, device_controller, "Отправляет команды по сценариям")
+Rel(kafka, sensor_controller, "Запрашивает данные для хранения телеметрии")
+Rel(monitoring_ms, kafka, "Асинхронно получает данные с датчиков")
+
+Rel(billing_ms, pay, "Обработка платежей")
+Rel(billing_ms, partner_ms, "Запрос ассортимента оборудования")
+
+Rel(scenario_ms, kafka, "Публикует события по управлению устройствами согласно сценарию")
+Rel(notification_ms, kafka, "Подписывается на события по которым надо отправлять уведомления")
+
+Rel(monitoring_ws, app, "Отправка данных с датчиков в режиме реального времени", "websocket")
+
+Rel(app, gateway, "")
+Rel(partner_ms, partner, "Отправляет запросы на предоставление данных и оформление заказов")
+Rel(notification_ms, notification, "Отправка уведомлений")
+@enduml

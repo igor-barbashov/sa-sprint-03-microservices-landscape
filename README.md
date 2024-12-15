@@ -12,6 +12,8 @@ minikube start
 
 [Получение токена](https://github.com/settings/tokens/new)
 
+При создании токена можно не указывать ни одного `scope` - это будет соответствовать `Grants read-only access to public information (including user profile info, repository info, and gists)`. 
+
 ```bash
 kubectl create secret docker-registry ghcr --docker-server=https://ghcr.io --docker-username=<github_username> --docker-password=<github_token> -n default
 ```
@@ -20,30 +22,43 @@ kubectl create secret docker-registry ghcr --docker-server=https://ghcr.io --doc
 
 [Install Kusk CLI](https://docs.kusk.io/getting-started/install-kusk-cli)
 
+В Windows операцию надо выполнять в консоли открытой от имени администратора. 
+
 ```bash
 kusk cluster install
 ```
 
 ## Смена адреса образа в helm chart
 
-После того как вы сделали форк репозитория и у вас в репозитории отработал GitHub Action. Вам нужно получить адрес образа <https://github.com/><github_username>/architecture-sprint-3/pkgs/container/architecture-sprint-3
+После того как вы сделали форк репозитория и у вас в репозитории отработал GitHub Action. Вам нужно получить адрес образа `https://github.com/<github_username>/<repository_name>/pkgs/container/<docker_image_name>`
 
 Он выглядит таким образом
-```ghcr.io/<github_username>/architecture-sprint-3:latest```
+```ghcr.io/<github_username>/<docker_image_name>:latest```
 
-Замените адрес образа в файле `helm/smart-home-monolith/values.yaml` на полученный файл:
+Замените адрес образа в файлах:
+- `helm/smart-home-monolith/values.yaml`
+- `.github/workflows/ci.yaml`
+
+на полученное название docker-образа:
 
 ```yaml
 image:
-  repository: ghcr.io/<github_username>/architecture-sprint-3
+  repository: ghcr.io/<github_username>/<docker_image_name>
   tag: latest
+```
+
+или (это одно и тоже)
+
+```yaml
+image:
+  repository: ghcr.io/<github_username>/<docker_image_name>:latest
 ```
 
 ## Настройка terraform
 
 [Установите Terraform](https://yandex.cloud/ru/docs/tutorials/infrastructure-management/terraform-quickstart#install-terraform)
 
-Создайте файл ~/.terraformrc
+Создайте файл `~/.terraformrc`. В Windows файл должен называться `terraform.rc` и находиться в папке `%APPDATA%`.
 
 ```hcl
 provider_installation {
@@ -75,8 +90,21 @@ kusk deploy -i api.yaml
 
 ```bash
 kubectl port-forward svc/kusk-gateway-envoy-fleet -n kusk-system 8080:80
+```
+
+```bash
 curl localhost:8080/hello
 ```
+
+Результат в консоли
+
+<img src="/images/cnosole.png" width="640"/>
+
+## Github Actions
+
+Делаем push в репозиторий. Результат выполнения `ci` `action`:
+
+<img src="/images/gh-action.png" width="640"/>
 
 ## Delete minikube
 

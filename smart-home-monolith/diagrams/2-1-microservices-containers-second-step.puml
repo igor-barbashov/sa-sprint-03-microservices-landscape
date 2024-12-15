@@ -1,0 +1,123 @@
+@startuml
+title Диаграмма контейнеров системы "Тёплый дом"
+
+!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(user#pink, "Пользователь/администратор")
+System_Ext(app, "Веб/мобильное приложение", "Управление системой, мониторинг, подключение новых устройств, биллинг, заявки в поддержку")
+System_Ext(module, "Устройства", "Отвечает за конкретную функцию системы умного дома")
+System_Ext(sensor, "Датчики")
+System_Ext(notification, "Система отправки уведомлений", "sms, email, push")
+System_Ext(partner, "Поставщики оборудования", "Предоставляют информацию об ассортименте, наличии и ценах устройств, поддерживающих протоколы экосистемы")
+System_Ext(pay, "Платежные системы", "Интеграция с внешними системами обработки платежей")
+
+Boundary(system, "Система Тёплый дом", "микросервисная архитектура"){
+    Container(gateway, "API Gateway", "Маршрутизация запросов")
+
+    Container(kafka, "Брокер сообщений", "Обеспечивает асинхронное межсервисное взаимодействие", "Kafka")
+
+    Boundary(auth_domain, "Аутентификация и авторизация"){
+        Container(auth_ms, "AuthService", "Аутентификация и авторизация, роли, jwt")
+        ComponentDb(auth_db#pink, "AuthDB", "PostgreSQL", "Данные ролей/прав пользователей, токены")
+    }
+
+    Boundary(user_domain, "Пользователи"){
+        Container(user_ms, "UserService", "Управление пользователями, списками поселков / домов")
+        ComponentDb(user_db#pink, "UserDB", "PostgreSQL", "Данные пользователей, поселков/домов")
+    }
+
+    Boundary(partner_domain, "Работа с партнерами"){
+        Container(partner_ms, "PartnerService", "Интеграция с внешними системами поставщиков оборудования")
+        ComponentDb(partner_db#pink, "PartnerDB", "MongoDB", "Данные поставщиков, из товаров")
+    }
+
+    Boundary(billing_domain, "Система биллинга"){
+        Container(billing_ms, "BillingService", "Управление выставлением счетов, оплаты услуг")
+        ComponentDb(billing_db#pink, "BillingDB", "PostgreSQL", "Транзакции, счета")
+    }
+
+    Boundary(support_domain, "Работа с заявками в поддержку"){
+        Container(support_ms, "SupportService", "Управление обращениями в поддержку")
+        ComponentDb(support_db#pink, "SupportDB", "PostgreSQL", "Данные по заявкам в поддержку, из статусам")
+    }
+
+    Boundary(device_domain, "Управление устройствами"){
+        Container(device_ms, "DeviceService", "Управление устройствами (модулями) системы")
+        Container(scenario_ms, "ScenarioService", "Управление сценариями использования устройств")
+        ComponentDb(device_db#pink, "DeviceDB", "MongoDB", "Данне устройства, конфигурации")
+    }
+
+    Boundary(controller_domain, "Контролеры устройств", "C"){
+        Container(device_controller, "DeviceController", "Взаимодействие с устройствами")
+        Container(sensor_controller, "SensorController", "Взаимодействие с датчиками")
+    }
+
+    Boundary(monitoring_domain, "Система мониторинга"){
+        Container(monitoring_ms, "MonitoringService", "Обработка данных с датчиков, предоставление агрегированных данных пользователю, работа с историческими данными")
+        Container(monitoring_ws, "MonitoringWSService", "Обмен данными в режиме реального времени", "websocket")
+        ComponentDb(monitoring_db#pink, "MonitoringDB", "Redis", "Агрегированные данные устройств/датчиков, кэш")
+    }
+
+    Boundary(telemetry#pink, "Система Телеметрии"){
+        Container(telemetry_ms, "TelemetryService", "Сбор, обработка, предоставление доступа к телеметрическим данным")
+        ComponentDb(telemetry_db, "TelemetryDB", "TimescaleDB", "Хранение данных телеметрии")
+    }
+
+    Boundary(notification_domain, "Управление оправкой сообщений"){
+        Container(notification_ms, "NotificationService", "Интеграция с внешними системами уведомлений")
+        ComponentDb(notification_db#pink, "NotificationDB", "SQLite", "Данные уведомлений")
+    }
+}
+
+'маршрутизация запросов API Gateway
+Rel_D(gateway, auth_ms, "")
+Rel_D(gateway, user_ms, "")
+Rel_D(gateway, partner_ms, "")
+Rel_D(gateway, billing_ms, "")
+Rel_D(gateway, support_ms, "")
+Rel_R(gateway, notification_ms, "")
+Rel_U(gateway, monitoring_ms, "")
+Rel_U(gateway, telemetry_ms, "")
+Rel_U(gateway, device_ms, "")
+Rel_R(gateway, scenario_ms, "")
+
+'взаимодействие с хранилищами данных
+Rel_D(auth_ms, auth_db, "")
+Rel_D(user_ms, user_db, "")
+Rel_R(partner_ms, partner_db, "")
+Rel_R(billing_ms, billing_db, "")
+Rel_D(support_ms, support_db, "")
+Rel_R(telemetry_ms, telemetry_db, "")
+Rel_L(monitoring_ms, monitoring_db, "")
+Rel_L(monitoring_ws, monitoring_db, "")
+Rel(notification_ms, notification_db, "")
+Rel_U(device_ms, device_db, "")
+Rel_U(scenario_ms, device_db, "")
+
+'прямое межсервисное взаимодействие
+Rel_D(billing_ms, partner_ms, "Запрос ассортимента оборудования")
+Rel_D(monitoring_ws, monitoring_ms, "Получает данные для установления ws-соединения")
+Rel_U(device_ms, device_controller, "Отправляет команды")
+
+Rel_U(telemetry_ms, sensor_controller, "Собирает данные с датчиков")
+Rel_U(telemetry_ms, device_controller, "Собирает данные о состоянии устройств")
+Rel_L(monitoring_ws, telemetry_ms, "Получает данные датчиков в реальном времени")
+Rel_L(monitoring_ms, telemetry_ms, "Запрашивает исторические данные с датчиков")
+
+'межсервисное взаимодействие через брокер сообщений
+Rel_D(telemetry_ms, kafka, "Публикует события телеметрии")
+Rel_U(kafka, device_controller, "Отправляет команды по сценариям")
+Rel_D(monitoring_ms, kafka, "Подписывается на алерты")
+Rel_D(scenario_ms, kafka, "Публикует события по управлению устройствами согласно сценарию")
+Rel_U(notification_ms, kafka, "Подписывается на события по которым надо отправлять уведомления")
+
+'интеграция с внешними системами
+Rel(user, app, "")
+Rel(app, gateway, "")
+Rel_D(billing_ms, pay, "Обработка платежей")
+Rel_D(partner_ms, partner, "Отправляет запросы на предоставление данных и оформление заказов")
+Rel_L(monitoring_ws, app, "Отправка данных с датчиков в режиме реального времени", "websocket")
+Rel_U(device_controller, module, "Отправляет команды / опрашивает состояние")
+Rel_U(sensor_controller, sensor, "Опрашивает состояние")
+Rel_L(notification_ms, notification, "Отправка уведомлений")
+@enduml

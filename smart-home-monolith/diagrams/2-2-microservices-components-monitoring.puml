@@ -1,0 +1,38 @@
+@startuml
+title Диаграмма компонентов микросервиса "Система мониторинга"
+
+!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+top to bottom direction
+
+Boundary(monitoring_ms, "Микросервис Система мониторинга", "container"){
+    Component(monitoring_controller, "MonitoringController", "Предоставляет API, обрабатывает запросы веб-приложения", "http")
+    Component(monitoring_service, "MonitoringService", "Бизнес-логика работы с данными датчиков")
+    Component(monitoring_repository, "MonitoringRepository", "Слой взаимодействия с БД")
+    ComponentDb(monitoring_db, "MonitoringDB", "MongoDB", "Исторические данные с датчиков")
+    Component(monitoring_consumer, "MonitoringConsumer", "Считывание событий из топика Данные датчиков")
+
+    Component(monitoring_ws, "MonitoringWSServer", "Устанавливает прямое постоянное соединение для передачи данных в режиме реального времени", "websocket")
+    Component(monitoring_ws_service, "MonitoringWSService", "Логика работы с данными в режиме реального времени")
+    Component(sensor_commutator, "SensorCommutator", "Взаимодействие с контроллером конкретного физического датчика")
+}
+
+System_Ext(gateway, "Api Gateway")
+System_Ext(app, "Веб-приложение")
+System_Ext(kafka, "Брокер сообщений", "Kafka")
+System_Ext(sensor_controller, "Контроллер датчика")
+
+Rel_D(gateway, monitoring_controller, "")
+Rel_D(app, monitoring_ws, "")
+
+Rel_D(monitoring_controller, monitoring_service, "")
+Rel_D(monitoring_service, monitoring_repository, "")
+Rel_D(monitoring_repository, monitoring_db, "")
+Rel_L(monitoring_service, monitoring_consumer, "")
+Rel_L(monitoring_consumer, kafka, "")
+
+Rel_D(monitoring_ws, monitoring_ws_service, "")
+Rel_R(monitoring_ws_service, sensor_commutator, "")
+Rel_R(sensor_commutator, sensor_controller, "")
+Rel_R(monitoring_ws_service, monitoring_service, "")
+@enduml

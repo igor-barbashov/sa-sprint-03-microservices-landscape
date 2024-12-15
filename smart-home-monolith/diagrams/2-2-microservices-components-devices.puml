@@ -1,0 +1,40 @@
+@startuml
+title Диаграмма компонентов микросервиса "Управление устройствами"
+
+!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+top to bottom direction
+
+Boundary(device_ms, "Микросервис Управление устройствами", "container"){
+    Component(device_controller, "DeviceController", "Предоставляет API, обрабатывает запросы веб-приложения")
+    Component(device_service, "DeviceService", "Бизнес-логика управления устройствами")
+    Component(device_repository, "DeviceRepository", "Слой взаимодействия с БД")
+    ComponentDb(device_db, "DeviceDB", "PostgreSQL", "Данные об устройствах, сценариях")
+    Component(device_commutator, "DeviceCommutator", "Взаимодействие с контроллером конкретного физического устройства")
+
+    Component(scenario_controller, "ScenarioController", "Предоставляет API, обрабатывает запросы веб-приложения")
+    Component(scenario_service, "ScenarioService", "Бизнес-логика работы со сценариями")
+    Component(scenario_repository, "ScenarioRepository", "Слой взаимодействия с БД")
+    Component(scenario_producer, "ScenarioProducer", "Публикация событий в Kafka")
+}
+
+System_Ext(gateway, "Api Gateway", "")
+System_Ext(module_controller, "Контроллер устройства")
+System_Ext(kafka, "Брокер сообщений", "Kafka")
+
+Rel_D(gateway, device_controller, "")
+Rel_D(gateway, scenario_controller, "")
+
+Rel_D(device_controller, device_service, "")
+Rel_D(device_service, device_repository, "")
+Rel_D(device_repository, device_db, "")
+Rel_L(device_service, device_commutator, "")
+Rel_L(device_commutator, module_controller, "")
+
+Rel_D(scenario_controller, scenario_service, "")
+Rel_L(scenario_service, device_service, "")
+Rel_D(scenario_service, scenario_repository, "")
+Rel_D(scenario_repository, device_db, "")
+Rel_R(scenario_service, scenario_producer, "")
+Rel_R(scenario_producer, kafka, "")
+@enduml
