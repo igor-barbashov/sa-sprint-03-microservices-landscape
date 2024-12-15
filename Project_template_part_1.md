@@ -69,9 +69,11 @@
 
 Т.к. у нас раньше не была отображена диаграмма Контекста `to-be` системы, на диаграмме контейнеров так же отобразил внешние системы.
 
-[Исходник в формате puml](smart-home-monolith/diagrams/2-1-microservices-containers.puml)
+[Исходник в формате puml](smart-home-monolith/diagrams/2-1-microservices-containers-second-step.puml)
 
-![Диаграмма контейнеров системы "Тёплый дом"](smart-home-monolith/diagrams/2-1-microservices-containers.png)
+Первый вариант не прошедший review (без сервиса Телеметрия и БД): [puml](smart-home-monolith/diagrams/2-1-microservices-containers-first-step.puml) | [png](smart-home-monolith/diagrams/2-1-microservices-containers-first-step.png)
+
+![Диаграмма контейнеров системы "Тёплый дом"](smart-home-monolith/diagrams/2-1-microservices-containers-second-step.png)
 
 **Диаграмма компонентов (Components)**
 
